@@ -1,24 +1,45 @@
 package main;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 public class Piece {
-	private int x, y, width, height;
-	
-	public Piece(int x, int y) {
-		this.x = x;
-		this.y = y;
-		width = 100;
-		height = 100;
-	}
-	
-	public void draw(Graphics2D g2) {
-		g2.setColor(Color.blue);
-		g2.fillRect(x, y, width, height);
-	}
-	
-	public void update() {
-		x++;
-	}
+    private BufferedImage img;
+    private int x, y;
+    private int targetX;
+    private int value;
+
+    public Piece(BufferedImage img, int x, int y, int value) {
+        this.img = img;
+        this.x = x;
+        this.y = y;
+        this.value = value;
+        this.targetX = x;
+    }
+
+    public void draw(Graphics2D g2) {
+        g2.drawImage(img, x, y, null);
+    }
+
+    public void update() {
+        int speed = 4; // pixels per frame
+        if (x < targetX) x += Math.min(speed, targetX - x);
+        if (x > targetX) x -= Math.min(speed, x - targetX);
+    }
+
+    public void setTargetX(int tx) {
+        targetX = tx;
+    }
+
+    public void setX(int x) { // set initial shuffled position
+        this.x = x;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public boolean isAtTarget() {
+        return x == targetX;
+    }
 }

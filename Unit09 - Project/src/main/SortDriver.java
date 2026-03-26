@@ -29,14 +29,15 @@ public class SortDriver {
 		frame.add(app);
 		frame.pack();
 		frame.setVisible(true);
+		
+		
 	}
 	
 	public static int getDelay() {
-		if (slider == null) {
-			return 1;
-		}
-		System.out.println(slider.getValue());
-		return slider.getValue();
+	    if (slider == null) {
+	        return 10; // default delay
+	    }
+	    return slider.getValue();
 	}
 
 }
