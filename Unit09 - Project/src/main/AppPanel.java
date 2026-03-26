@@ -24,15 +24,47 @@ public class AppPanel extends JPanel implements Runnable {
         // Ask user for number of pieces
         String input = JOptionPane.showInputDialog("Enter number of Pieces");
         int count = Integer.parseInt(input);
+        
+        String[] sortOptions = {"Bubble Sort", "Selection Sort", "Insertion Sort"};
 
+        String sortType = (String) JOptionPane.showInputDialog(
+                null,
+                "Select a sort to visualize:",
+                "Sort Selection",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                sortOptions,
+                sortOptions[0]
+        );
+        
+        String[] imageOptions = {"Banana", "Mountain"};
+
+        String imageType = (String) JOptionPane.showInputDialog(
+                null,
+                "Select a image to be sorted:",
+                "Image Selection",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                imageOptions,
+                imageOptions[0]
+        );
+        
+        String[] generateOptions = {"Banana"};//, "Selection Sort", "Insertion Sort"};
+
+        String generateType = (String) JOptionPane.showInputDialog(
+                null,
+                "Select a image to be sorted:",
+                "Image Selection",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                generateOptions,
+                generateOptions[0]
+        );
+        
+        
         // Create table
-        table = new Table(count);
-
-        // show shuffled pieces immediately
-        repaint();
-
-        // wait for user click to start sorting
-        JOptionPane.showMessageDialog(null, "Click OK to start sorting!", "Start", JOptionPane.INFORMATION_MESSAGE);
+        table = new Table(count, sortType, imageType, generateType);
+        
         table.started = true;
 
         t.start(); // start animation thread
@@ -51,7 +83,7 @@ public class AppPanel extends JPanel implements Runnable {
             table.update();
             repaint();
             try {
-                Thread.sleep(SortDriver.getDelay()); // ~60 FPS
+                Thread.sleep(SortDriver.getDelay()); // slider time
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

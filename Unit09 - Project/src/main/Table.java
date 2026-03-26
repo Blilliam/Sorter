@@ -8,182 +8,220 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 public class Table {
-    Piece[] list;
-    int startX;
-    int y;
-    int pieceWidth;
-    boolean started = false; // wait for start
-    BufferedImage fullSprite;
+	Piece[] list;
+	int startX;
+	int y;
+	int imageY;
+	int pieceWidth;
+	boolean started = false; // wait for start
+	BufferedImage fullSprite;
 
-    int i; // bubble sort indices
-    int j;
-    boolean sorting = true;
+	int i; // sort indices
+	int j;
+	boolean sorting = true;
 
-    public Table(int count) {
-        try {
-            fullSprite = ImageIO.read(getClass().getResource("Banana projectile.jpeg"));
+	String sortCase;
 
-            // scale image to fit panel
-            double scaleX = AppPanel.HEIGHT / (double) fullSprite.getWidth();
-            double scaleY = AppPanel.WIDTH / (double) fullSprite.getHeight();
-            double scale = Math.min(scaleX, scaleY);
+	public Table(int count, String Sortcase, String imageType, String order) {
+		imageY = 100;
+		try {
+			switch (imageType) {
 
-            int newWidth = (int)(fullSprite.getWidth() * scale);
-            int newHeight = (int)(fullSprite.getHeight() * scale);
+			case "Mountain":
+				fullSprite = ImageIO.read(getClass().getResource("Mountain.jpg"));
+				break;
 
-            pieceWidth = newWidth / count;
-            list = new Piece[count];
+			case "Banana":
+				fullSprite = ImageIO.read(getClass().getResource("Banana projectile.jpeg"));
+				break;
 
-            // create slices
-            for (int k = 0; k < count; k++) {
-                BufferedImage slice = fullSprite.getSubimage(
-                        k * (fullSprite.getWidth() / count),
-                        0,
-                        fullSprite.getWidth() / count,
-                        fullSprite.getHeight()
-                );
+//			case "Insertion Sort":
+//				stepInsertionSort();
+//				break;
 
-                // scale slice
-                BufferedImage scaledSlice = new BufferedImage(pieceWidth, newHeight, slice.getType());
-                scaledSlice.getGraphics().drawImage(slice, 0, 0, pieceWidth, newHeight, null);
+		}
 
-                list[k] = new Piece(scaledSlice, 0, y, k);
-            }
+			// scale image to fit panel
+			double scaleX = (AppPanel.HEIGHT - imageY)/ (double) fullSprite.getWidth();
+			double scaleY = AppPanel.WIDTH / (double) fullSprite.getHeight();
+			double scale = Math.min(scaleX, scaleY);
 
-            // shuffle pieces in array
-            shuffleArray();
+			int newWidth = (int) (fullSprite.getWidth() * scale);
+			int newHeight = (int) (fullSprite.getHeight() * scale);
 
-            // center horizontally
-            int totalWidth = pieceWidth * count;
-            startX = (AppPanel.WIDTH - totalWidth) / 2;
+			pieceWidth = newWidth / count;
+			list = new Piece[count];
 
-            // assign initial shuffled positions (x = targetX, so no jump)
-            for (int k = 0; k < list.length; k++) {
-                int shuffledX = startX + k * pieceWidth;
-                list[k].setX(shuffledX);
-                list[k].setTargetX(shuffledX);
-            }
+			this.sortCase = Sortcase;
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+			// create slices
+			for (int k = 0; k < count; k++) {
+				BufferedImage slice = fullSprite.getSubimage(k * (fullSprite.getWidth() / count), 0,
+						fullSprite.getWidth() / count, fullSprite.getHeight());
 
-    private void shuffleArray() {
-        Random rand = new Random();
-        for (int i = 0; i < list.length; i++) {
-            int j = rand.nextInt(list.length);
-            Piece temp = list[i];
-            list[i] = list[j];
-            list[j] = temp;
-        }
-    }
+				// scale slice
+				BufferedImage scaledSlice = new BufferedImage(pieceWidth, newHeight, slice.getType());
+				scaledSlice.getGraphics().drawImage(slice, 0, 0, pieceWidth, newHeight, null);
 
-    public void stepBubbleSort() {
-        if (!started || !sorting) return;
+				list[k] = new Piece(scaledSlice, 0, y, k);
+			}
 
-        for (Piece p : list) {
-            if (!p.isAtTarget()) return; // wait until all pieces finish moving
-        }
+			// shuffle pieces in array
+			shuffleArray();
 
-        if (i < list.length) {
-            if (j < list.length - i - 1) {
-                if (list[j].getValue() > list[j + 1].getValue()) {
-                    Piece temp = list[j];
-                    list[j] = list[j + 1];
-                    list[j + 1] = temp;
-                    
-                    for (int k = 0; k < list.length; k++) {
-                        list[k].setTargetX(startX + k * pieceWidth);
-                    }
-                }
-                j++;
-            } else {
-                j = 0;
-                i++;
-            }
-        } else {
-            sorting = false;
-        }
-    }
-    
-    public void stepInsertionSort() {
-        if (!started || !sorting) return;
+			// center horizontally
+			int totalWidth = pieceWidth * count;
+			startX = (AppPanel.WIDTH - totalWidth) / 2;
 
-        // wait until all pieces finished moving
-        for (Piece p : list) {
-            if (!p.isAtTarget()) return;
-        }
+			// assign initial shuffled positions (x = targetX, so no jump)
+			for (int k = 0; k < list.length; k++) {
+				int shuffledX = startX + k * pieceWidth;
+				list[k].setX(shuffledX);
+				list[k].setTargetX(shuffledX);
+			}
 
-        if (i < list.length) {
-            if (j >= 0 && list[j].getValue() > list[j + 1].getValue()) {
-                // swap list[j] and list[j + 1]
-                Piece temp = list[j];
-                list[j] = list[j + 1];
-                list[j + 1] = temp;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
-                // update target positions
-                for (int k = 0; k < list.length; k++) {
-                    list[k].setTargetX(startX + k * pieceWidth);
-                }
+	private void shuffleArray() {
+		Random rand = new Random();
+		for (int i = 0; i < list.length; i++) {
+			int j = rand.nextInt(list.length);
+			Piece temp = list[i];
+			list[i] = list[j];
+			list[j] = temp;
+		}
+	}
 
-                j--; // move left in insertion sort
-            } else {
-                // move to next i
-                i++;
-                j = i - 1; // start comparing with left neighbors
-            }
-        } else {
-            sorting = false;
-        }
-    }
-    public void stepSelectionSort() {
-        if (!started || !sorting) return;
+	public void stepBubbleSort() {
+		if (!started || !sorting)
+			return;
 
-        // wait until all pieces finished moving
-        for (Piece p : list) {
-            if (!p.isAtTarget()) return;
-        }
+		for (Piece p : list) {
+			if (!p.isAtTarget())
+				return; // wait until all pieces finish moving
+		}
 
-        if (i < list.length - 1) {
-            // find min index in the unsorted portion
-            int minIndex = i;
-            for (int k = i + 1; k < list.length; k++) {
-                if (list[k].getValue() < list[minIndex].getValue()) {
-                    minIndex = k;
-                }
-            }
+		if (i < list.length) {
+			if (j < list.length - i - 1) {
+				if (list[j].getValue() > list[j + 1].getValue()) {
+					Piece temp = list[j];
+					list[j] = list[j + 1];
+					list[j + 1] = temp;
 
-            // swap if needed
-            if (minIndex != i) {
-                Piece temp = list[i];
-                list[i] = list[minIndex];
-                list[minIndex] = temp;
+					for (int k = 0; k < list.length; k++) {
+						list[k].setTargetX(startX + k * pieceWidth);
+					}
+				}
+				j++;
+			} else {
+				j = 0;
+				i++;
+			}
+		} else {
+			sorting = false;
+		}
+	}
 
-                // update target positions
-                for (int k = 0; k < list.length; k++) {
-                    list[k].setTargetX(startX + k * pieceWidth);
-                }
-            }
+	public void stepInsertionSort() {
+		if (!started || !sorting)
+			return;
 
-            i++; // move to next index
-        } else {
-            sorting = false;
-        }
-    }
+		// wait until all pieces finished moving
+		for (Piece p : list) {
+			if (!p.isAtTarget())
+				return;
+		}
 
-    public void update() {
-        //stepBubbleSort();
-    	//stepInsertionSort();
-    	stepSelectionSort();
-        for (Piece p : list) {
-            p.update();
-        }
-    }
+		if (i < list.length) {
+			if (j >= 0 && list[j].getValue() > list[j + 1].getValue()) {
+				// swap list[j] and list[j + 1]
+				Piece temp = list[j];
+				list[j] = list[j + 1];
+				list[j + 1] = temp;
 
-    public void draw(Graphics2D g2) {
-        for (Piece p : list) {
-            p.draw(g2);
-        }
-    }
+				// update target positions
+				for (int k = 0; k < list.length; k++) {
+					list[k].setTargetX(startX + k * pieceWidth);
+				}
+
+				j--; // move left in insertion sort
+			} else {
+				// move to next i
+				i++;
+				j = i - 1; // start comparing with left neighbors
+			}
+		} else {
+			sorting = false;
+		}
+	}
+
+	public void stepSelectionSort() {
+		if (!started || !sorting)
+			return;
+
+		// wait until all pieces finished moving
+		for (Piece p : list) {
+			if (!p.isAtTarget())
+				return;
+		}
+
+		if (i < list.length - 1) {
+			// find min index in the unsorted portion
+			int minIndex = i;
+			for (int k = i + 1; k < list.length; k++) {
+				if (list[k].getValue() < list[minIndex].getValue()) {
+					minIndex = k;
+				}
+			}
+
+			// swap if needed
+			if (minIndex != i) {
+				Piece temp = list[i];
+				list[i] = list[minIndex];
+				list[minIndex] = temp;
+
+				// update target positions
+				for (int k = 0; k < list.length; k++) {
+					list[k].setTargetX(startX + k * pieceWidth);
+				}
+			}
+
+			i++; // move to next index
+		} else {
+			sorting = false;
+		}
+	}
+	public void update() {
+		switch (sortCase) {
+
+			case "Bubble Sort":
+				stepBubbleSort();
+				break;
+
+			case "Selection Sort":
+				stepSelectionSort();
+				break;
+
+			case "Insertion Sort":
+				stepInsertionSort();
+				break;
+
+		}
+		for (Piece p : list) {
+			p.update();
+		}
+	}
+
+	public void draw(Graphics2D g2) {
+		for (Piece p : list) {
+			p.draw(g2);
+		}
+	}
+
+	public void swap() {
+
+	}
 }
